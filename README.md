@@ -6,7 +6,7 @@ Important note: it won't follow symlinks
 ## How to install
 Simply run
 ```bash
-cargo install --git https://github.com/jmwielandt/pycleaner
+cargo install --git https://github.com/nullyfae/pycleaner
 ```
 
 ## Usage
