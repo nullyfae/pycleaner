@@ -20,6 +20,8 @@ struct Arguments {
     max_depth: Option<i32>,
     #[clap(long = "dry", action = ArgAction::SetTrue, help = "Makes it dry run")]
     dry: bool,
+    #[clap(long = "dirname", short = 'd', value_parser)]
+    dirname: Option<String>,
 }
 
 fn main() -> std::io::Result<()> {
@@ -27,8 +29,12 @@ fn main() -> std::io::Result<()> {
     let loc = cli.localization;
     let max_depth = cli.max_depth;
     let dry = cli.dry;
+    let dirname = match cli.dirname {
+        Some(dirname) => dirname,
+        None => PYCACHE.into(),
+    };
 
-    remove_pycache_directories(loc, max_depth, dry)?;
+    remove_pycache_directories(loc, max_depth, dry, &dirname)?;
     Ok(())
 }
 
@@ -42,6 +48,7 @@ fn remove_pycache_directories(
     loc: Option<String>,
     max_depth: Option<i32>,
     dry: bool,
+    dirname: &str,
 ) -> std::io::Result<()> {
     let current_dir: PathBuf;
     if let Some(loc) = loc {
@@ -74,7 +81,7 @@ fn remove_pycache_directories(
             };
 
             if path.is_dir() && !path.is_symlink() && !closed.contains(&pbwd) {
-                if entry.file_name().eq_ignore_ascii_case(PYCACHE) {
+                if entry.file_name().eq_ignore_ascii_case(dirname) {
                     println!("removing {}", path.to_str().unwrap().yellow());
                     if !dry {
                         fs::remove_dir_all(path)?;
