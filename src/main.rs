@@ -38,6 +38,10 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
+fn remove_weird_prefix_on_pathstr<'a>(pathstr: &'a str) -> &'a str {
+    pathstr.strip_prefix("\\\\?\\").unwrap_or(pathstr)
+}
+
 #[derive(Hash, PartialEq, Eq, Debug, Clone)]
 struct PathBufWithDepth {
     path: PathBuf,
@@ -56,7 +60,10 @@ fn remove_pycache_directories(
     } else {
         current_dir = env::current_dir()?;
     }
-    println!("current dir: {}", current_dir.to_str().unwrap().blue());
+    println!(
+        "current dir: {}",
+        remove_weird_prefix_on_pathstr(current_dir.to_str().unwrap()).blue()
+    );
 
     let mut closed: HashSet<PathBufWithDepth> = HashSet::new();
     let mut paths_queue: Vec<PathBufWithDepth> = Vec::new();
@@ -82,7 +89,10 @@ fn remove_pycache_directories(
 
             if path.is_dir() && !path.is_symlink() && !closed.contains(&pbwd) {
                 if entry.file_name().eq_ignore_ascii_case(dirname) {
-                    println!("removing {}", path.to_str().unwrap().yellow());
+                    println!(
+                        "removing {}",
+                        remove_weird_prefix_on_pathstr(path.to_str().unwrap()).yellow()
+                    );
                     if !dry {
                         fs::remove_dir_all(path)?;
                     }
