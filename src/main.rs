@@ -20,8 +20,8 @@ struct Arguments {
     max_depth: Option<i32>,
     #[clap(long = "dry", action = ArgAction::SetTrue, help = "Makes it dry run")]
     dry: bool,
-    #[clap(long = "dirname", short = 'd', value_parser)]
-    dirname: Option<String>,
+    #[clap(long = "dirname", short = 'd', value_parser, default_value_t = PYCACHE.into())]
+    dirname: String,
 }
 
 fn main() -> std::io::Result<()> {
@@ -29,10 +29,7 @@ fn main() -> std::io::Result<()> {
     let loc = cli.localization;
     let max_depth = cli.max_depth;
     let dry = cli.dry;
-    let dirname = match cli.dirname {
-        Some(dirname) => dirname,
-        None => PYCACHE.into(),
-    };
+    let dirname = cli.dirname;
 
     remove_pycache_directories(loc, max_depth, dry, &dirname)?;
     Ok(())
